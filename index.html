@@ -1,50 +1,1254 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#000000">
-<meta name="description" content="EULER-Ω 終極擴增實境工作室">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="EULER-Ω">
-<title>EULER-Ω｜終極擴增實境工作室</title>
-<link rel="manifest" href="./manifest.json">
-<link rel="apple-touch-icon" href="./圖示/圖示-192.svg">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" />
+<meta name="theme-color" content="#000000" />
+<title>EULER-Ω · Ultimate AR Studio</title>
+<link rel="manifest" href="./manifest.json" />
+<link rel="apple-touch-icon" href="./圖示/圖示-192.svg" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="EULER-Ω" />
+<meta name="mobile-web-app-capable" content="yes" />
+
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
 <script src="https://unpkg.com/delaunator@5.0.0/delaunator.min.js"></script>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Noto+Sans+TC:wght@300;500;700&display=swap" rel="stylesheet" />
+
 <style>
-:root{--雷射:#00f3ff;--面板:rgba(8,12,16,.82);--次要:rgba(255,255,255,.6);--安全上:env(safe-area-inset-top,0px);--安全下:env(safe-area-inset-bottom,0px)}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000;color:#fff;font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif}button,input,select{font:inherit}#舞台{position:fixed;inset:0;background:#000}video{display:none}canvas{position:absolute;inset:0;width:100%;height:100%}#頂列{position:absolute;z-index:10;left:0;right:0;top:0;padding:calc(var(--安全上) + 12px) 14px 24px;display:flex;align-items:center;background:linear-gradient(#000,transparent)}#品牌{color:var(--雷射);font-weight:900;letter-spacing:3px}#狀態{margin-left:auto;font-size:11px;color:var(--次要)}#狀態點{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ffb020;margin-right:5px;box-shadow:0 0 10px currentColor}#控制區{position:absolute;z-index:20;left:10px;right:10px;bottom:calc(var(--安全下) + 10px);background:var(--面板);border:1px solid rgba(255,255,255,.12);border-radius:18px;backdrop-filter:blur(22px);overflow:hidden}#控制標題{height:52px;padding:0 14px;display:flex;align-items:center;color:var(--雷射);font-weight:800;letter-spacing:2px}#控制標題 span{margin-left:auto;color:var(--次要);font-size:12px}#控制區.收合{transform:translateY(calc(100% - 52px))}.分頁列{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:6px;border-top:1px solid rgba(255,255,255,.1);border-bottom:1px solid rgba(255,255,255,.1)}.分頁{min-height:42px;border:0;border-radius:10px;background:transparent;color:var(--次要)}.分頁.啟用{background:rgba(0,243,255,.14);color:var(--雷射)}.內容{display:none;padding:12px;max-height:42vh;overflow:auto}.內容.啟用{display:block}.列{display:flex;flex-wrap:wrap;gap:8px}.按鈕{min-height:44px;padding:0 13px;border-radius:11px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:#fff}.按鈕.啟用{background:var(--雷射);color:#000;border-color:var(--雷射)}.網格{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.滑桿{display:flex;flex-direction:column;gap:6px;font-size:11px;color:var(--雷射)}input[type=range]{width:100%;accent-color:var(--雷射)}#提示{position:absolute;z-index:5;inset:0;display:grid;place-items:center;text-align:center;color:var(--雷射);opacity:.35;pointer-events:none}#訊息{position:absolute;z-index:30;left:50%;bottom:calc(var(--安全下) + 270px);transform:translate(-50%,20px);opacity:0;transition:.25s;background:#000;border:1px solid var(--雷射);border-radius:999px;padding:9px 16px;color:var(--雷射);white-space:nowrap}#訊息.顯示{opacity:1;transform:translate(-50%,0)}#載入{position:fixed;z-index:99;inset:0;display:grid;place-items:center;background:radial-gradient(circle,#00151a,#000 70%);color:var(--雷射);letter-spacing:3px;text-align:center}.圈{width:60px;height:60px;margin:auto;border:3px solid rgba(0,243,255,.2);border-top-color:var(--雷射);border-radius:50%;animation:轉 1s linear infinite}@keyframes 轉{to{transform:rotate(360deg)}}
+:root{
+  --laser:#00F3FF;
+  --laser-soft:rgba(0,243,255,.15);
+  --bg:#000;
+  --panel:rgba(10,12,16,.72);
+  --panel-brd:rgba(255,255,255,.08);
+  --txt:#fff;
+  --txt-dim:rgba(255,255,255,.55);
+  --danger:#ff3b57;
+  --ok:#22e28a;
+  --warn:#ffb020;
+  --radius:10px;
+  --sa-t:env(safe-area-inset-top,0px);
+  --sa-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;background:var(--bg);color:var(--txt);
+  font-family:'JetBrains Mono','Noto Sans TC',ui-monospace,monospace;
+  -webkit-font-smoothing:antialiased}
+
+#stage{position:fixed;inset:0;overflow:hidden}
+.src-media{display:none}
+canvas.layer{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#eye-canvas{pointer-events:none;z-index:8}
+
+/* ══ HUD SHELL ══ */
+#hud{position:absolute;inset:0;pointer-events:none;z-index:10;display:flex;flex-direction:column;justify-content:space-between}
+
+#hud-top{
+  pointer-events:auto;
+  padding:calc(var(--sa-t) + 8px) 12px 8px;
+  display:flex;align-items:center;gap:8px;
+  background:linear-gradient(to bottom,rgba(0,0,0,.85),rgba(0,0,0,0));
+  backdrop-filter:blur(10px) saturate(140%);
+  -webkit-backdrop-filter:blur(10px) saturate(140%);
+}
+.brand{display:flex;align-items:center;gap:6px;font-size:11px;letter-spacing:3px;color:var(--laser);text-shadow:0 0 12px rgba(0,243,255,.5)}
+.brand b{font-weight:800}
+.brand small{color:var(--txt-dim);letter-spacing:2px;font-size:9px}
+
+.status{display:flex;align-items:center;gap:10px;margin-left:auto;font-size:9.5px;letter-spacing:1.5px;color:var(--txt-dim)}
+.status .dot{width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px currentColor}
+.status .dot.warn{background:var(--warn)}
+.status .dot.err{background:var(--danger)}
+
+/* Toggle tab */
+#hud-toggle{
+  position:absolute;top:calc(var(--sa-t) + 6px);left:50%;transform:translateX(-50%);
+  z-index:22;pointer-events:auto;
+  background:rgba(0,0,0,.7);border:1px solid rgba(255,255,255,.15);border-radius:20px;
+  padding:4px 12px;font-size:10px;letter-spacing:2px;color:var(--txt-dim);
+  display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none;
+  transition:all .2s;
+}
+#hud-toggle:hover{color:var(--laser);border-color:var(--laser)}
+#hud-toggle i.arr{transition:transform .3s}
+#hud-toggle.collapsed i.arr{transform:rotate(180deg)}
+
+/* Tabs */
+#panel-wrap{pointer-events:auto;padding:0 12px}
+#panel{
+  background:var(--panel);border:1px solid var(--panel-brd);border-radius:var(--radius);
+  overflow:hidden;backdrop-filter:blur(20px) saturate(160%);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);
+  transition:max-height .35s cubic-bezier(.4,0,.2,1),opacity .25s,margin-top .25s;
+  max-height:70vh;opacity:1;margin-top:8px;
+}
+#panel.hidden{max-height:0;opacity:0;margin-top:0;border-color:transparent}
+
+.tabs{display:flex;padding:6px;gap:4px;border-bottom:1px solid var(--panel-brd);background:rgba(0,0,0,.35)}
+.tab{
+  flex:1;padding:7px 8px;font-size:10px;letter-spacing:1.5px;text-align:center;
+  color:var(--txt-dim);border-radius:6px;cursor:pointer;transition:all .18s;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+}
+.tab i{font-size:11px}
+.tab:hover{color:var(--txt)}
+.tab.active{background:var(--laser-soft);color:var(--laser);box-shadow:inset 0 0 0 1px rgba(0,243,255,.35)}
+
+.tab-body{padding:12px;display:none;max-height:calc(70vh - 60px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.tab-body.active{display:block}
+.tab-body::-webkit-scrollbar{width:4px}
+.tab-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.row + .row{margin-top:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+
+/* Buttons */
+.btn{
+  --bg:rgba(255,255,255,.06);
+  background:var(--bg);border:1px solid rgba(255,255,255,.14);color:var(--txt);
+  padding:7px 10px;font-size:11px;letter-spacing:.5px;border-radius:6px;
+  cursor:pointer;font-family:inherit;
+  display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  transition:all .15s;white-space:nowrap;user-select:none;
+}
+.btn:hover{background:rgba(0,243,255,.12);border-color:var(--laser);color:var(--laser)}
+.btn:active{transform:scale(.97)}
+.btn.active{background:var(--laser);border-color:var(--laser);color:#000;box-shadow:0 0 16px rgba(0,243,255,.5)}
+.btn.sm{padding:5px 8px;font-size:10px}
+.btn.icon{padding:7px 9px;min-width:34px}
+.btn.danger{border-color:rgba(255,59,87,.5);color:#ff8b9c}
+.btn.danger:hover{background:rgba(255,59,87,.15);border-color:var(--danger);color:#fff}
+.btn.rec.active{background:var(--danger);border-color:var(--danger);color:#fff;animation:rec 1.4s infinite}
+.btn.mic.active{background:var(--danger);border-color:var(--danger);color:#fff;animation:rec 1.4s infinite}
+
+/* Sliders */
+.sld{display:flex;flex-direction:column;gap:4px;flex:1;min-width:110px}
+.sld-lbl{display:flex;justify-content:space-between;font-size:9.5px;color:var(--laser);letter-spacing:1px}
+.sld-lbl span:last-child{color:var(--txt);opacity:.75;font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;width:100%;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:3px;background:rgba(255,255,255,.15);border-radius:2px}
+input[type=range]::-moz-range-track{height:3px;background:rgba(255,255,255,.15);border-radius:2px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--laser);border:2px solid #000;margin-top:-6px;box-shadow:0 0 8px rgba(0,243,255,.6);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--laser);border:2px solid #000;box-shadow:0 0 8px rgba(0,243,255,.6);cursor:pointer}
+
+/* Select */
+.sel{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
+  color:var(--txt);padding:6px 10px;font-size:10.5px;border-radius:6px;
+  font-family:inherit;cursor:pointer;outline:none;appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path fill='%2300F3FF' d='M1 3l4 4 4-4z'/></svg>");
+  background-repeat:no-repeat;background-position:right 8px center;padding-right:24px;
+}
+.sel:focus{border-color:var(--laser)}
+
+.hint{font-size:9px;color:var(--txt-dim);letter-spacing:1px;margin-bottom:4px;text-transform:uppercase}
+
+/* Badges */
+.badge{
+  position:absolute;top:calc(var(--sa-t) + 60px);right:12px;z-index:20;
+  background:rgba(0,0,0,.72);border:1px solid var(--laser);color:var(--laser);
+  font-size:9.5px;padding:4px 10px;border-radius:20px;letter-spacing:2px;
+  pointer-events:none;display:none;
+}
+.badge.on{display:block}
+
+#import-hint{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;
+  text-align:center;pointer-events:none;opacity:.32;transition:opacity .5s;
+}
+#import-hint.hidden{opacity:0}
+#import-hint i{font-size:2.8rem;color:var(--laser);text-shadow:0 0 20px currentColor}
+#import-hint p{font-size:.72rem;letter-spacing:3px;margin-top:10px;color:var(--laser)}
+
+/* Loader */
+#loader{position:fixed;inset:0;background:radial-gradient(circle at center,#001318 0%,#000 70%);
+  z-index:99;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+#loader .ring{width:60px;height:60px;border:2px solid rgba(0,243,255,.2);border-top-color:var(--laser);
+  border-radius:50%;animation:spin 1s linear infinite}
+#loader h2{font-size:14px;letter-spacing:4px;color:var(--laser);margin:0}
+#loader p{font-size:10px;color:var(--txt-dim);letter-spacing:2px;margin:0}
+
+/* Subtitle */
+#subtitle{
+  pointer-events:auto;
+  padding:16px 20px calc(var(--sa-b) + 20px);
+  background:linear-gradient(to top,rgba(0,0,0,.9),rgba(0,0,0,0));
+  display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;
+}
+#tx-hist{font-size:.7rem;color:rgba(255,255,255,.4);max-width:90%}
+#tx-main{
+  font-family:'Noto Sans TC',sans-serif;font-size:1.05rem;font-weight:500;
+  color:#fff;text-shadow:0 2px 8px #000;max-width:90%;line-height:1.4;
+  animation:slideUp .3s ease-out;
+}
+
+/* Toast */
+#toast{
+  position:absolute;bottom:calc(var(--sa-b) + 140px);left:50%;transform:translateX(-50%) translateY(20px);
+  background:rgba(0,0,0,.85);border:1px solid var(--laser);color:var(--laser);
+  padding:8px 16px;border-radius:20px;font-size:11px;letter-spacing:1.5px;
+  opacity:0;transition:all .3s;pointer-events:none;z-index:40;white-space:nowrap;
+}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* FPS */
+#fps{position:absolute;top:calc(var(--sa-t) + 60px);left:12px;z-index:20;pointer-events:none;
+  font-size:10px;letter-spacing:1px;color:var(--laser);background:rgba(0,0,0,.5);
+  padding:3px 8px;border-radius:4px;font-variant-numeric:tabular-nums}
+
+/* Video overlay window */
+#vw{position:absolute;z-index:30;width:320px;top:96px;right:16px;
+  background:rgba(0,0,0,.7);border:1.5px solid var(--laser);border-radius:10px;
+  overflow:hidden;box-shadow:0 8px 40px rgba(0,243,255,.25);display:none;user-select:none}
+#vw.on{display:block}
+#vw.mini #vw-body,#vw.mini #vw-ctrl{display:none}
+#vw-bar{
+  display:flex;align-items:center;gap:6px;padding:6px 8px;cursor:grab;
+  background:rgba(0,243,255,.12);border-bottom:1px solid rgba(0,243,255,.25);
+  font-size:9.5px;letter-spacing:2px;color:var(--laser);
+}
+#vw-bar:active{cursor:grabbing}
+#vw-bar .wbtn{width:12px;height:12px;border-radius:50%;cursor:pointer;flex-shrink:0}
+.wbtn.close{background:#ff5f57}
+.wbtn.min{background:#febc2e}
+.wbtn.max{background:#28c840}
+#vw-title{flex:1;text-align:center;pointer-events:none}
+#vw-body{position:relative;background:#000}
+#vw-body video{width:100%;display:block;max-height:260px;object-fit:cover}
+#vw-blend{position:absolute;top:6px;left:50%;transform:translateX(-50%);
+  font-size:9px;color:var(--laser);background:rgba(0,0,0,.6);padding:2px 8px;border-radius:10px;
+  letter-spacing:1.5px;pointer-events:none}
+#vw-ctrl{display:flex;flex-wrap:wrap;gap:5px;padding:7px 8px;background:rgba(0,0,0,.85);
+  border-top:1px solid rgba(0,243,255,.15)}
+#vw-ctrl .btn.sm{padding:4px 7px;font-size:9.5px}
+#vw-resize{position:absolute;bottom:2px;right:2px;width:16px;height:16px;cursor:se-resize;
+  color:rgba(0,243,255,.5);font-size:12px;display:flex;align-items:flex-end;justify-content:flex-end}
+
+/* Drag-over */
+#stage.dropover::after{
+  content:'放開以匯入';position:absolute;inset:0;z-index:50;
+  background:rgba(0,243,255,.12);border:3px dashed var(--laser);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--laser);font-size:20px;letter-spacing:6px;pointer-events:none;
+}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes rec{0%,100%{box-shadow:0 0 0 0 rgba(255,59,87,.5)}70%{box-shadow:0 0 0 12px rgba(255,59,87,0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+@media (max-width:480px){
+  #vw{width:220px;top:80px}
+  .brand small{display:none}
+}
 </style>
 </head>
 <body>
-<div id="載入"><div><div class="圈"></div><h2>EULER-Ω</h2><small>初始化鏡頭與 AI</small></div></div>
-<div id="舞台">
-<video id="鏡頭" autoplay playsinline muted></video><video id="背景影片" autoplay playsinline loop muted></video><img id="背景圖片" hidden alt=""><canvas id="畫布"></canvas>
-<div id="頂列"><div id="品牌">EULER-Ω</div><div id="狀態"><i id="狀態點"></i>AI / CAM</div></div>
-<div id="提示">匯入圖片或影片背景</div>
-<div id="控制區"><div id="控制標題">控制面板<span>點擊收合</span></div><div class="分頁列"><button class="分頁 啟用" data-tab="鏡頭">鏡頭</button><button class="分頁" data-tab="網格">網格</button><button class="分頁" data-tab="調色">調色</button><button class="分頁" data-tab="輸出">輸出</button></div>
-<section class="內容 啟用" data-body="鏡頭"><div class="列"><button id="翻轉" class="按鈕">翻轉鏡頭</button><button id="鏡像" class="按鈕 啟用">鏡像</button><button id="匯入" class="按鈕">匯入背景</button><button id="清除" class="按鈕">清除背景</button></div></section>
-<section class="內容" data-body="網格"><div class="列"><button id="臉網" class="按鈕">臉部網格</button><button id="手網" class="按鈕">手部網格</button><button id="骨架" class="按鈕">姿態骨架</button><button id="三角" class="按鈕">三角網格</button></div><div class="網格"><label class="滑桿">網格密度<input id="密度" type="range" min="20" max="100" value="70"></label><label class="滑桿">網格亮度<input id="網格亮度" type="range" min="20" max="100" value="75"></label></div></section>
-<section class="內容" data-body="調色"><div class="網格"><label class="滑桿">背景暗度<input id="暗度" type="range" min="0" max="100" value="20"></label><label class="滑桿">色調<input id="色調" type="range" min="0" max="360" value="190"></label><label class="滑桿">亮度<input id="亮度" type="range" min="30" max="200" value="100"></label><label class="滑桿">對比度<input id="對比" type="range" min="30" max="200" value="100"></label></div></section>
-<section class="內容" data-body="輸出"><div class="列"><button id="截圖" class="按鈕">截圖</button><button id="錄影" class="按鈕">錄影</button><button id="儲存" class="按鈕">儲存設定</button><button id="載入設定" class="按鈕">載入設定</button></div></section></div>
-<div id="訊息"></div><input id="檔案" type="file" accept="image/*,video/*" hidden>
+
+<div id="loader">
+  <div class="ring"></div>
+  <h2>EULER-Ω</h2>
+  <p>初始化鏡頭與 AI 核心…</p>
 </div>
+
+<div id="stage">
+  <!-- Sources -->
+  <video id="webcam" class="src-media" autoplay playsinline muted></video>
+  <video id="bg-video" class="src-media" autoplay playsinline loop muted></video>
+  <img id="bg-image" class="src-media" alt="" />
+
+  <!-- Layers -->
+  <canvas id="canvas" class="layer"></canvas>
+  <canvas id="eye-canvas" class="layer"></canvas>
+
+  <!-- Import hint -->
+  <div id="import-hint">
+    <i class="fas fa-cloud-arrow-up"></i>
+    <p>拖放 · 圖片 / 影片</p>
+  </div>
+
+  <!-- FPS -->
+  <div id="fps">-- FPS</div>
+
+  <!-- Badge -->
+  <div id="face-badge" class="badge">⬡ 臉部鎖定</div>
+
+  <!-- HUD -->
+  <div id="hud">
+
+    <!-- TOP BAR -->
+    <div id="hud-top">
+      <div class="brand"><i class="fas fa-cube"></i><b>EULER-Ω</b><small>ULTIMATE AR</small></div>
+      <div class="status">
+        <span><i class="dot" id="st-cam"></i>CAM</span>
+        <span><i class="dot warn" id="st-ai"></i>AI</span>
+      </div>
+    </div>
+
+    <!-- Toggle tab -->
+    <div id="hud-toggle" title="切換控制面板 (H)">
+      <span>控制面板</span><i class="arr fas fa-chevron-up"></i>
+    </div>
+
+    <!-- Video overlay window -->
+    <div id="vw">
+      <div id="vw-bar">
+        <div class="wbtn close" data-vw="close"></div>
+        <div class="wbtn min" data-vw="min"></div>
+        <div class="wbtn max" data-vw="max"></div>
+        <div id="vw-title">⬡ 影片疊加</div>
+      </div>
+      <div id="vw-body">
+        <video id="vw-video" playsinline loop muted></video>
+        <div id="vw-blend">SCREEN</div>
+        <div id="vw-resize"><i class="fas fa-grip"></i></div>
+      </div>
+      <div id="vw-ctrl">
+        <button class="btn sm" id="vw-play"><i class="fas fa-pause"></i></button>
+        <button class="btn sm" id="vw-mute"><i class="fas fa-volume-xmark"></i></button>
+        <button class="btn sm" id="vw-swap"><i class="fas fa-shuffle"></i> 換片</button>
+        <button class="btn sm" id="vw-lock"><i class="fas fa-link"></i> 拓撲鎖</button>
+        <div class="sld" style="min-width:80px">
+          <div class="sld-lbl"><span>OPACITY</span><span id="vw-op-v">80%</span></div>
+          <input type="range" id="vw-op" min="0" max="100" value="80" />
+        </div>
+        <select class="sel" id="vw-blend-sel">
+          <option value="screen" selected>Screen</option>
+          <option value="source-over">Normal</option>
+          <option value="multiply">Multiply</option>
+          <option value="overlay">Overlay</option>
+          <option value="color-dodge">Color Dodge</option>
+          <option value="hard-light">Hard Light</option>
+          <option value="difference">Difference</option>
+          <option value="exclusion">Exclusion</option>
+          <option value="hue">Hue</option>
+          <option value="luminosity">Luminosity</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- MID SPACER (grows) -->
+    <div style="flex:1"></div>
+
+    <!-- BOTTOM STACK -->
+    <div>
+      <!-- CONTROL PANEL -->
+      <div id="panel-wrap">
+        <div id="panel">
+          <div class="tabs">
+            <div class="tab active" data-tab="capture"><i class="fas fa-video"></i>擷取</div>
+            <div class="tab" data-tab="mesh"><i class="fas fa-diagram-project"></i>網格</div>
+            <div class="tab" data-tab="face"><i class="fas fa-user-astronaut"></i>臉部</div>
+            <div class="tab" data-tab="fx"><i class="fas fa-sliders"></i>調色</div>
+            <div class="tab" data-tab="io"><i class="fas fa-cloud-arrow-down"></i>輸出</div>
+          </div>
+
+          <!-- TAB: CAPTURE -->
+          <div class="tab-body active" data-body="capture">
+            <div class="hint">來源</div>
+            <div class="row">
+              <button class="btn" id="btn-flip"><i class="fas fa-camera-rotate"></i>翻轉</button>
+              <button class="btn" id="btn-mirror"><i class="fas fa-arrows-left-right"></i>鏡像</button>
+              <button class="btn" id="btn-bg"><i class="fas fa-image"></i>背景素材</button>
+              <button class="btn" id="btn-bg-clear"><i class="fas fa-eraser"></i>清背景</button>
+            </div>
+            <div class="hint" style="margin-top:12px">語音</div>
+            <div class="row">
+              <button class="btn mic" id="btn-mic"><i class="fas fa-microphone"></i>語音字幕</button>
+              <select class="sel" id="mic-lang">
+                <option value="zh-TW">中文 (繁)</option>
+                <option value="zh-CN">中文 (簡)</option>
+                <option value="en-US">English (US)</option>
+                <option value="ja-JP">日本語</option>
+                <option value="ko-KR">한국어</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- TAB: MESH -->
+          <div class="tab-body" data-body="mesh">
+            <div class="hint">網格層</div>
+            <div class="row">
+              <button class="btn" id="btn-face-mesh"><i class="fas fa-mask"></i>臉網</button>
+              <button class="btn" id="btn-hand-mesh"><i class="fas fa-hand"></i>手網</button>
+              <button class="btn" id="btn-pose-mesh"><i class="fas fa-person"></i>骨骼</button>
+              <button class="btn" id="btn-delaunay"><i class="fas fa-shapes"></i>三角</button>
+            </div>
+            <div class="hint" style="margin-top:12px">參數</div>
+            <div class="grid2">
+              <div class="sld"><div class="sld-lbl"><span>網格密度</span><span id="v-density">75%</span></div>
+                <input type="range" id="s-density" min="10" max="100" value="75" /></div>
+              <div class="sld"><div class="sld-lbl"><span>網格亮度</span><span id="v-mbright">70%</span></div>
+                <input type="range" id="s-mbright" min="20" max="100" value="70" /></div>
+            </div>
+          </div>
+
+          <!-- TAB: FACE -->
+          <div class="tab-body" data-body="face">
+            <div class="hint">臉部素材</div>
+            <div class="row">
+              <button class="btn" id="btn-face-import"><i class="fas fa-upload"></i>匯入</button>
+              <button class="btn" id="btn-face-mode"><i class="fas fa-user-astronaut"></i>啟用</button>
+              <button class="btn" id="btn-face-lock-vid"><i class="fas fa-link"></i>臉×影片</button>
+              <button class="btn danger" id="btn-face-clear"><i class="fas fa-xmark"></i>清除</button>
+            </div>
+            <div class="hint" style="margin-top:12px">變換</div>
+            <div class="grid2">
+              <div class="sld"><div class="sld-lbl"><span>縮放</span><span id="v-fscale">100%</span></div>
+                <input type="range" id="s-fscale" min="50" max="200" value="100" /></div>
+              <div class="sld"><div class="sld-lbl"><span>透明度</span><span id="v-fop">90%</span></div>
+                <input type="range" id="s-fop" min="0" max="100" value="90" /></div>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <button class="btn sm" id="btn-side-opt"><i class="fas fa-eye"></i>側臉優化</button>
+            </div>
+          </div>
+
+          <!-- TAB: FX -->
+          <div class="tab-body" data-body="fx">
+            <div class="hint">影像</div>
+            <div class="grid2">
+              <div class="sld"><div class="sld-lbl"><span>背景暗度</span><span id="v-dim">30%</span></div>
+                <input type="range" id="s-dim" min="0" max="100" value="30" /></div>
+              <div class="sld"><div class="sld-lbl"><span>色調</span><span id="v-hue">190°</span></div>
+                <input type="range" id="s-hue" min="0" max="360" value="190" /></div>
+              <div class="sld"><div class="sld-lbl"><span>亮度</span><span id="v-bright">100%</span></div>
+                <input type="range" id="s-bright" min="30" max="200" value="100" /></div>
+              <div class="sld"><div class="sld-lbl"><span>飽和度</span><span id="v-sat">100%</span></div>
+                <input type="range" id="s-sat" min="0" max="200" value="100" /></div>
+              <div class="sld"><div class="sld-lbl"><span>對比度</span><span id="v-con">100%</span></div>
+                <input type="range" id="s-con" min="30" max="200" value="100" /></div>
+              <div class="sld"><div class="sld-lbl"><span>暈影</span><span id="v-vig">0%</span></div>
+                <input type="range" id="s-vig" min="0" max="100" value="0" /></div>
+            </div>
+          </div>
+
+          <!-- TAB: IO -->
+          <div class="tab-body" data-body="io">
+            <div class="hint">輸出</div>
+            <div class="row">
+              <button class="btn" id="btn-shot"><i class="fas fa-camera"></i>截圖</button>
+              <button class="btn rec" id="btn-rec"><i class="fas fa-circle"></i>錄影</button>
+              <button class="btn" id="btn-vw"><i class="fas fa-film"></i>疊加影片</button>
+            </div>
+            <div class="hint" style="margin-top:12px">預設</div>
+            <div class="row">
+              <button class="btn sm" id="btn-preset-save"><i class="fas fa-floppy-disk"></i>儲存</button>
+              <button class="btn sm" id="btn-preset-load"><i class="fas fa-folder-open"></i>載入</button>
+              <button class="btn sm danger" id="btn-preset-reset"><i class="fas fa-rotate-left"></i>還原</button>
+            </div>
+            <div class="hint" style="margin-top:12px">快捷鍵</div>
+            <div style="font-size:10px;color:var(--txt-dim);line-height:1.7;letter-spacing:.5px">
+              H · 收起面板　　S · 截圖　　R · 錄影<br>
+              F · 翻轉鏡頭　M · 語音　　V · 影片視窗<br>
+              1-5 · 切換分頁
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- SUBTITLE -->
+      <div id="subtitle">
+        <div id="tx-hist"></div>
+        <div id="tx-main">等待語音輸入…</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+</div>
+
+<!-- Hidden inputs -->
+<input type="file" id="file-bg" accept="image/*,video/*" style="display:none" />
+<input type="file" id="file-face" accept="image/*,video/*" style="display:none" />
+<input type="file" id="file-vw" accept="video/*" style="display:none" />
+
 <script>
-(()=>{'use strict';const 取=id=>document.getElementById(id),全=s=>document.querySelectorAll(s);const 鏡頭=取('鏡頭'),背景影片=取('背景影片'),背景圖片=取('背景圖片'),畫布=取('畫布'),繪圖=畫布.getContext('2d'),訊息=取('訊息');const 設定={方向:'user',鏡像:true,背景:'鏡頭',暗度:20,色調:190,亮度:100,對比:100,密度:70,網格亮度:75,臉網:false,手網:false,骨架:false,三角:false};let 串流,人工智慧,錄影器,片段=[],錄影中=false,最後送出=0;
-function 提示(t){訊息.textContent=t;訊息.classList.add('顯示');clearTimeout(提示.t);提示.t=setTimeout(()=>訊息.classList.remove('顯示'),1800)}
-function 調整(){const d=Math.min(2,devicePixelRatio||1);畫布.width=innerWidth*d;畫布.height=innerHeight*d;繪圖.setTransform(d,0,0,d,0,0)}
-function 填滿(來源){const sw=來源.videoWidth||來源.naturalWidth,sh=來源.videoHeight||來源.naturalHeight;if(!sw||!sh)return;const r=Math.max(innerWidth/sw,innerHeight/sh);繪圖.drawImage(來源,(innerWidth-sw*r)/2,(innerHeight-sh*r)/2,sw*r,sh*r)}
-async function 啟動鏡頭(){try{串流?.getTracks().forEach(t=>t.stop());串流=await navigator.mediaDevices.getUserMedia({video:{facingMode:設定.方向,width:{ideal:1280},height:{ideal:720}},audio:false});鏡頭.srcObject=串流;await 鏡頭.play();取('狀態點').style.background='#22e28a'}catch(e){取('狀態點').style.background='#ff3b57';提示('請允許鏡頭權限')}}
-function 畫骨架(r){const w=innerWidth,h=innerHeight,c=`hsla(${設定.色調},100%,${設定.網格亮度}%,.82)`;繪圖.strokeStyle=c;繪圖.lineCap='round';if(設定.臉網&&r.faceLandmarks&&window.FACEMESH_TESSELATION){繪圖.beginPath();for(const x of FACEMESH_TESSELATION){const a=r.faceLandmarks[x[0]],b=r.faceLandmarks[x[1]];繪圖.moveTo(a.x*w,a.y*h);繪圖.lineTo(b.x*w,b.y*h)}繪圖.lineWidth=.65;繪圖.stroke()}if(設定.骨架&&r.poseLandmarks&&window.POSE_CONNECTIONS){繪圖.beginPath();for(const x of POSE_CONNECTIONS){const a=r.poseLandmarks[x[0]],b=r.poseLandmarks[x[1]];if((a.visibility||0)<.35||(b.visibility||0)<.35)continue;繪圖.moveTo(a.x*w,a.y*h);繪圖.lineTo(b.x*w,b.y*h)}繪圖.lineWidth=2.2;繪圖.stroke()}if(設定.手網&&window.HAND_CONNECTIONS){for(const hand of [r.leftHandLandmarks,r.rightHandLandmarks]){if(!hand)continue;繪圖.beginPath();for(const x of HAND_CONNECTIONS){const a=hand[x[0]],b=hand[x[1]];繪圖.moveTo(a.x*w,a.y*h);繪圖.lineTo(b.x*w,b.y*h)}繪圖.lineWidth=2;繪圖.stroke()}}if(設定.三角&&window.Delaunator){const p=[];if(r.faceLandmarks)for(let i=0;i<r.faceLandmarks.length;i+=Math.max(4,Math.round(12-設定.密度/10))){const q=r.faceLandmarks[i];p.push([q.x*w,q.y*h])}if(p.length>2){const t=Delaunator.from(p).triangles;for(let i=0;i<t.length;i+=3){const a=p[t[i]],b=p[t[i+1]],d=p[t[i+2]];繪圖.beginPath();繪圖.moveTo(...a);繪圖.lineTo(...b);繪圖.lineTo(...d);繪圖.closePath();繪圖.lineWidth=.7;繪圖.stroke()}}}}
-function 呈現(r){繪圖.clearRect(0,0,innerWidth,innerHeight);繪圖.save();if(設定.鏡像){繪圖.translate(innerWidth,0);繪圖.scale(-1,1)}if(設定.背景==='鏡頭')填滿(鏡頭);else if(設定.背景==='影片')填滿(背景影片);else 填滿(背景圖片);繪圖.restore();if(設定.暗度){繪圖.fillStyle=`rgba(0,0,0,${設定.暗度/100})`;繪圖.fillRect(0,0,innerWidth,innerHeight)}繪圖.save();if(設定.鏡像){繪圖.translate(innerWidth,0);繪圖.scale(-1,1)}畫骨架(r);繪圖.restore()}
-function 套用(){畫布.style.filter=`brightness(${設定.亮度}%) contrast(${設定.對比}%)`;document.documentElement.style.setProperty('--雷射',`hsl(${設定.色調},100%,50%)`)}
-function 切換(id,key){取(id).onclick=()=>{設定[key]=!設定[key];取(id).classList.toggle('啟用',設定[key])}}
-全('.分頁').forEach(b=>b.onclick=()=>{全('.分頁,.內容').forEach(x=>x.classList.remove('啟用'));b.classList.add('啟用');document.querySelector(`[data-body="${b.dataset.tab}"]`).classList.add('啟用')});取('控制標題').onclick=()=>取('控制區').classList.toggle('收合');取('翻轉').onclick=async()=>{設定.方向=設定.方向==='user'?'environment':'user';設定.鏡像=設定.方向==='user';取('鏡像').classList.toggle('啟用',設定.鏡像);await 啟動鏡頭()};取('鏡像').onclick=()=>{設定.鏡像=!設定.鏡像;取('鏡像').classList.toggle('啟用',設定.鏡像)};切換('臉網','臉網');切換('手網','手網');切換('骨架','骨架');切換('三角','三角');[['暗度','暗度'],['色調','色調'],['亮度','亮度'],['對比','對比'],['密度','密度'],['網格亮度','網格亮度']].forEach(([id,k])=>取(id).oninput=e=>{設定[k]=+e.target.value;套用()});取('匯入').onclick=()=>取('檔案').click();取('檔案').onchange=e=>{const f=e.target.files[0];if(!f)return;const u=URL.createObjectURL(f);if(f.type.startsWith('video')){設定.背景='影片';背景影片.src=u;背景影片.play()}else{設定.背景='圖片';背景圖片.hidden=false;背景圖片.src=u}取('提示').style.display='none'};取('清除').onclick=()=>{設定.背景='鏡頭';取('提示').style.display='grid'};取('截圖').onclick=()=>畫布.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`EULER-${Date.now()}.png`;a.click()});取('錄影').onclick=()=>{if(錄影中){錄影器.stop();錄影中=false;取('錄影').textContent='錄影';return}const s=畫布.captureStream(30);錄影器=new MediaRecorder(s);片段=[];錄影器.ondataavailable=e=>e.data.size&&片段.push(e.data);錄影器.onstop=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(片段,{type:'video/webm'}));a.download=`EULER-${Date.now()}.webm`;a.click()};錄影器.start();錄影中=true;取('錄影').textContent='停止錄影'};取('儲存').onclick=()=>{localStorage.setItem('EULER設定',JSON.stringify(設定));提示('設定已儲存')};取('載入設定').onclick=()=>{Object.assign(設定,JSON.parse(localStorage.getItem('EULER設定')||'{}'));套用();提示('設定已載入')};window.addEventListener('resize',調整);
-async function 開始(){調整();套用();人工智慧=new Holistic({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${f}`});人工智慧.setOptions({modelComplexity:1,smoothLandmarks:true,refineFaceLandmarks:true,minDetectionConfidence:.5,minTrackingConfidence:.5});人工智慧.onResults(呈現);await 啟動鏡頭();取('載入').style.display='none';循環();if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js')}
-async function 循環(){const n=performance.now();if(鏡頭.videoWidth&&n-最後送出>33){最後送出=n;try{await 人工智慧.send({image:鏡頭})}catch{}}requestAnimationFrame(循環)}window.addEventListener('load',開始)})();
+/* ═══════════════════════════════════════════════════════════════
+   EULER-Ω · Ultimate AR Studio
+   Single-file build. Modules: Dom, State, Utils, Cam, Fx, Face,
+   VidWin, Speech, Recorder, UI.
+═══════════════════════════════════════════════════════════════ */
+(() => {
+'use strict';
+const $  = id => document.getElementById(id);
+const $$ = sel => document.querySelectorAll(sel);
+
+/* ── DOM refs ─────────────────────────────── */
+const Dom = {
+  stage:$('stage'), loader:$('loader'), toast:$('toast'),
+  webcam:$('webcam'), bgVid:$('bg-video'), bgImg:$('bg-image'),
+  canvas:$('canvas'), eyeCanvas:$('eye-canvas'),
+  hint:$('import-hint'), fps:$('fps'),
+  faceBadge:$('face-badge'),
+  panel:$('panel'), toggle:$('hud-toggle'),
+  txMain:$('tx-main'), txHist:$('tx-hist'),
+  fileBg:$('file-bg'), fileFace:$('file-face'), fileVw:$('file-vw'),
+  stCam:$('st-cam'), stAi:$('st-ai'),
+};
+Dom.ctx     = Dom.canvas.getContext('2d');
+Dom.eyeCtx  = Dom.eyeCanvas.getContext('2d');
+
+// Offscreen canvases
+const faceCanvas = document.createElement('canvas');
+const compCanvas = document.createElement('canvas');
+Dom.faceCanvas = faceCanvas;
+Dom.compCanvas = compCanvas;
+Dom.faceCtx = faceCanvas.getContext('2d', { willReadFrequently:false });
+Dom.compCtx = compCanvas.getContext('2d', { willReadFrequently:false });
+
+/* ── State ────────────────────────────────── */
+const P = { // params (persisted)
+  hue:190, bgDim:30, bright:100, sat:100, con:100, vig:0,
+  density:75, meshBright:70,
+  faceScale:1, faceOpacity:.9, faceMode:false, sideOpt:true, faceLockVid:false,
+  faceMeshOn:false, handMeshOn:false, poseMeshOn:false, delaunayOn:false,
+  mirror:true, camMode:'user',
+  bgType:'CAM', hudOn:true,
+  vwOpacity:.8, vwBlend:'screen', vwTopoLock:false, vwOn:false,
+  micLang:'zh-TW',
+};
+const S = { // runtime state (not persisted)
+  stream:null, holistic:null,
+  faceSrcEl:null, faceSrcLM:null, faceSrcTri:null, faceReady:false, faceType:null,
+  headYaw:0,
+  delaunayPts:[], delaunayTri:[],
+  fps:{last:performance.now(), n:0, val:0},
+  mediaRec:null, chunks:[], recording:false,
+  speech:null,
+};
+
+/* ── Utils ────────────────────────────────── */
+const Utils = {
+  toast(msg, ms=1600){
+    Dom.toast.textContent = msg;
+    Dom.toast.classList.add('on');
+    clearTimeout(Utils._tt);
+    Utils._tt = setTimeout(()=>Dom.toast.classList.remove('on'), ms);
+  },
+  drawContain(ctx, img, w, h){
+    const iw = img.videoWidth || img.naturalWidth || img.width;
+    const ih = img.videoHeight || img.naturalHeight || img.height;
+    if (!iw || !ih) return;
+    const r = Math.max(w/iw, h/ih);
+    ctx.drawImage(img, (w-iw*r)/2, (h-ih*r)/2, iw*r, ih*r);
+  },
+  clamp(v,a,b){return v<a?a:v>b?b:v},
+  saveP(){ try{ localStorage.setItem('eulerΩ.preset', JSON.stringify(P)); }catch(e){} },
+  loadP(){
+    try{
+      const raw = localStorage.getItem('eulerΩ.preset'); if(!raw) return false;
+      Object.assign(P, JSON.parse(raw));
+      return true;
+    }catch(e){ return false; }
+  },
+};
+
+/* ── FX (filter + vignette) ───────────────── */
+const Fx = {
+  applyFilter(){
+    const f = `brightness(${P.bright}%) saturate(${P.sat}%) contrast(${P.con}%)`;
+    Dom.canvas.style.filter = f;
+    Dom.eyeCanvas.style.filter = f;
+    document.documentElement.style.setProperty('--laser', `hsl(${P.hue},100%,50%)`);
+  },
+  drawVignette(ctx, w, h){
+    if (P.vig <= 0) return;
+    const g = ctx.createRadialGradient(w/2, h/2, Math.min(w,h)*.3, w/2, h/2, Math.max(w,h)*.7);
+    g.addColorStop(0, 'rgba(0,0,0,0)');
+    g.addColorStop(1, `rgba(0,0,0,${P.vig/100})`);
+    ctx.fillStyle = g; ctx.fillRect(0,0,w,h);
+  }
+};
+
+/* ── Camera ───────────────────────────────── */
+const Cam = {
+  async start(){
+    if (S.stream) S.stream.getTracks().forEach(t=>t.stop());
+    try{
+      S.stream = await navigator.mediaDevices.getUserMedia({
+        video:{ facingMode: P.camMode, width:{ideal:1280}, height:{ideal:720} }, audio:false
+      });
+      Dom.webcam.srcObject = S.stream;
+      P.mirror = (P.camMode === 'user');
+      await new Promise(r => Dom.webcam.onloadedmetadata = r);
+      await Dom.webcam.play();
+      Dom.stCam.classList.remove('warn','err');
+    }catch(e){
+      Dom.stCam.classList.add('err');
+      Utils.toast('鏡頭啟動失敗');
+      console.error(e);
+    }
+  },
+  async flip(){ P.camMode = (P.camMode==='user'?'environment':'user'); await Cam.start(); }
+};
+
+/* ── Face replacement ─────────────────────── */
+const Face = {
+  handleImport(file){
+    const url = URL.createObjectURL(file);
+    if (file.type.startsWith('video')){
+      const v = document.createElement('video');
+      Object.assign(v, { src:url, loop:true, muted:true, playsInline:true, autoplay:true });
+      v.style.display='none'; document.body.appendChild(v);
+      S.faceSrcEl = v; P.faceType = 'video';
+      v.addEventListener('loadeddata', ()=>Face.detect(v), { once:true });
+      v.play().catch(()=>{});
+    } else {
+      const img = new Image(); img.src = url;
+      img.onload = ()=>{ S.faceSrcEl = img; P.faceType = 'image'; Face.detect(img); };
+    }
+    Dom.hint.classList.add('hidden');
+    S.faceReady = false;
+  },
+  detect(source){
+    const fm = new FaceMesh({ locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}` });
+    fm.setOptions({ maxNumFaces:1, refineLandmarks:true, minDetectionConfidence:.5 });
+    fm.onResults(r=>{
+      if (r.multiFaceLandmarks && r.multiFaceLandmarks[0]){
+        const lm = r.multiFaceLandmarks[0];
+        S.faceSrcLM = lm;
+        const pts = lm.map(l=>[l.x*640, l.y*480]);
+        S.faceSrcTri = Array.from(Delaunator.from(pts).triangles);
+        S.faceReady = true; P.faceMode = true;
+        UI.syncButtons();
+        Utils.toast('臉部素材已鎖定');
+      } else {
+        Utils.toast('未偵測到人臉');
+      }
+      fm.close();
+    });
+    fm.send({ image: source });
+  },
+  clear(){
+    S.faceReady=false; P.faceMode=false; P.faceLockVid=false;
+    S.faceSrcEl=null; S.faceSrcLM=null; S.faceSrcTri=null;
+    Dom.hint.classList.remove('hidden'); UI.syncButtons();
+  },
+  yaw(lm){
+    if (!lm) return 0;
+    const le=lm[33], re=lm[263], nt=lm[1];
+    if(!le||!re||!nt) return 0;
+    const ed = Math.abs(re.x - le.x);
+    if (ed < .01) return 0;
+    return Math.atan((nt.x - (le.x+re.x)/2) / (ed*.5)) * 180/Math.PI;
+  },
+  center(lm){
+    let sx=0, sy=0, n=0;
+    for (const p of lm) if(p){ sx+=p.x; sy+=p.y; n++; }
+    return n ? {x:sx/n, y:sy/n} : {x:.5, y:.5};
+  },
+  texMap(ctx, img, u0,v0, u1,v1, u2,v2, x0,y0, x1,y1, x2,y2){
+    ctx.save();
+    ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.lineTo(x2,y2); ctx.closePath(); ctx.clip();
+    const du0=u1-u0, dv0=v1-v0, du1=u2-u0, dv1=v2-v0;
+    const dx0=x1-x0, dy0=y1-y0, dx1=x2-x0, dy1=y2-y0;
+    const det = du0*dv1 - du1*dv0;
+    if (det !== 0){
+      const a = (dx0*dv1 - dx1*dv0)/det,
+            b = (dy0*dv1 - dy1*dv0)/det,
+            c = (dx1*du0 - dx0*du1)/det,
+            d = (dy1*du0 - dy0*du1)/det;
+      ctx.transform(a,b,c,d, x0 - a*u0 - c*v0, y0 - b*u0 - d*v0);
+      ctx.drawImage(img,0,0);
+    }
+    ctx.restore();
+  },
+  drawPath(ctx, lm, idx, w, h){
+    ctx.beginPath();
+    idx.forEach((i,k)=>{
+      const p = lm[i]; if(!p) return;
+      k===0 ? ctx.moveTo(p.x*w,p.y*h) : ctx.lineTo(p.x*w,p.y*h);
+    });
+    ctx.closePath();
+  },
+  render(ctx, lm, w, h, yaw, scale, cx, cy){
+    if (!S.faceReady || !lm?.length || !S.faceSrcLM || !S.faceSrcTri) return;
+    const src = S.faceSrcEl; if (!src) return;
+    const sw = src.videoWidth || src.naturalWidth || src.width;
+    const sh = src.videoHeight || src.naturalHeight || src.height;
+    if (!sw || !sh) return;
+
+    let sf = 1;
+    if (P.sideOpt){
+      const ay = Math.abs(yaw);
+      if (ay > 40) sf = Math.max(0, 1-(ay-40)/30);
+    }
+    const op = P.faceOpacity * sf;
+    if (op <= .01) return;
+
+    const fc  = Dom.faceCtx;
+    const slm = S.faceSrcLM, tri = S.faceSrcTri;
+
+    fc.clearRect(0,0,w,h);
+    fc.save();
+    fc.translate(cx*w, cy*h); fc.scale(scale,scale); fc.translate(-cx*w, -cy*h);
+
+    for (let i=0; i<tri.length; i+=3){
+      const s0=slm[tri[i]], s1=slm[tri[i+1]], s2=slm[tri[i+2]]; if(!s0||!s1||!s2) continue;
+      const d0=lm[tri[i]],  d1=lm[tri[i+1]],  d2=lm[tri[i+2]];  if(!d0||!d1||!d2) continue;
+      Face.texMap(fc, src,
+        s0.x*sw, s0.y*sh, s1.x*sw, s1.y*sh, s2.x*sw, s2.y*sh,
+        d0.x*w,  d0.y*h,  d1.x*w,  d1.y*h,  d2.x*w,  d2.y*h);
+    }
+
+    // Mouth cutout + soft edge
+    fc.globalCompositeOperation = 'destination-out';
+    fc.shadowColor = '#000'; fc.shadowBlur = 4;
+    Face.drawPath(fc, lm,
+      [78,191,80,81,82,13,312,311,310,415,308,324,318,402,317,14,87,178,88,95], w, h);
+    fc.fill();
+    fc.shadowBlur = 12; fc.lineWidth = 14; fc.strokeStyle = '#000';
+    Face.drawPath(fc, lm,
+      [10,338,297,332,284,251,389,356,454,323,361,288,397,365,379,378,400,377,152,148,176,149,150,136,172,58,132,93,234,127,162,21,54,103,67,109], w, h);
+    fc.stroke(); fc.stroke();
+
+    fc.restore();
+
+    ctx.save(); ctx.globalAlpha = op;
+    ctx.drawImage(faceCanvas, 0, 0, w, h);
+    ctx.restore();
+  }
+};
+
+/* ── Video overlay window ─────────────────── */
+const VidWin = {
+  el:$('vw'), vid:$('vw-video'), bar:$('vw-bar'), body:$('vw-body'),
+  resize:$('vw-resize'), blendLbl:$('vw-blend'),
+  dragging:false, resizing:false, off:{x:0,y:0}, size:{w:320,h:0},
+
+  init(){
+    // Dragging
+    this.bar.addEventListener('pointerdown', e=>{
+      if(e.target.classList.contains('wbtn')) return;
+      this.dragging=true;
+      const r=this.el.getBoundingClientRect();
+      this.off={x:e.clientX-r.left, y:e.clientY-r.top};
+      this.bar.setPointerCapture(e.pointerId);
+    });
+    this.bar.addEventListener('pointermove', e=>{
+      if(!this.dragging) return;
+      this.el.style.left = (e.clientX-this.off.x)+'px';
+      this.el.style.top  = (e.clientY-this.off.y)+'px';
+      this.el.style.right='auto';
+    });
+    this.bar.addEventListener('pointerup', ()=>this.dragging=false);
+
+    // Resizing
+    this.resize.addEventListener('pointerdown', e=>{
+      e.stopPropagation();
+      this.resizing=true;
+      const r=this.el.getBoundingClientRect();
+      this.size={w:r.width, sx:e.clientX};
+      this.resize.setPointerCapture(e.pointerId);
+    });
+    this.resize.addEventListener('pointermove', e=>{
+      if(!this.resizing) return;
+      this.el.style.width = Math.max(160, this.size.w + (e.clientX-this.size.sx))+'px';
+    });
+    this.resize.addEventListener('pointerup', ()=>this.resizing=false);
+
+    // Window buttons
+    this.bar.addEventListener('click', e=>{
+      const a = e.target.dataset.vw; if(!a) return;
+      if (a==='close'){ this.close(); }
+      else if (a==='min'){ this.el.classList.toggle('mini'); }
+      else if (a==='max'){ this.el.style.width='min(90vw,720px)'; this.el.style.left='5vw'; this.el.style.top='80px'; this.el.style.right='auto'; }
+    });
+    this.body.addEventListener('dblclick', ()=>this.el.classList.toggle('mini'));
+
+    // Controls
+    $('vw-play').onclick = ()=>{
+      if (this.vid.paused){ this.vid.play(); $('vw-play').innerHTML='<i class="fas fa-pause"></i>'; }
+      else { this.vid.pause(); $('vw-play').innerHTML='<i class="fas fa-play"></i>'; }
+    };
+    $('vw-mute').onclick = ()=>{
+      this.vid.muted = !this.vid.muted;
+      $('vw-mute').innerHTML = this.vid.muted
+        ? '<i class="fas fa-volume-xmark"></i>' : '<i class="fas fa-volume-high"></i>';
+    };
+    $('vw-swap').onclick = ()=> Dom.fileVw.click();
+    $('vw-lock').onclick = ()=>{
+      P.vwTopoLock = !P.vwTopoLock;
+      $('vw-lock').classList.toggle('active', P.vwTopoLock);
+    };
+    $('vw-op').oninput = e=>{
+      P.vwOpacity = e.target.value/100;
+      $('vw-op-v').textContent = e.target.value+'%';
+    };
+    $('vw-blend-sel').onchange = e=>{
+      P.vwBlend = e.target.value;
+      this.blendLbl.textContent = e.target.selectedOptions[0].textContent.toUpperCase();
+    };
+
+    Dom.fileVw.addEventListener('change', e=>{
+      const f = e.target.files[0]; if(!f) return;
+      this.vid.src = URL.createObjectURL(f);
+      this.vid.play(); this.open();
+    });
+  },
+  hasVideo(){ return this.vid.src && this.vid.readyState >= 2; },
+  open(){ this.el.classList.add('on'); P.vwOn = true; },
+  close(){ this.el.classList.remove('on'); P.vwOn = false; },
+  toggle(){ this.el.classList.contains('on') ? this.close() : (this.hasVideo() ? this.open() : Dom.fileVw.click()); },
+
+  drawLayer(ctx, w, h){
+    if (!P.vwOn || !this.hasVideo()) return;
+    const vw = this.vid.videoWidth, vh = this.vid.videoHeight;
+    if (!vw || !vh) return;
+    const r = Math.max(w/vw, h/vh);
+    ctx.save();
+    ctx.globalCompositeOperation = P.vwBlend;
+    ctx.globalAlpha = P.vwOpacity;
+    ctx.drawImage(this.vid, (w-vw*r)/2, (h-vh*r)/2, vw*r, vh*r);
+    ctx.restore();
+  }
+};
+
+/* ── Speech ───────────────────────────────── */
+const Speech = {
+  init(){
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR){ Dom.txMain.textContent='此瀏覽器不支援語音辨識'; return; }
+    S.speech = new SR();
+    S.speech.continuous = true;
+    S.speech.interimResults = true;
+    S.speech.lang = P.micLang;
+    S.speech.onresult = e=>{
+      let fin='', itm='';
+      for (let i=e.resultIndex; i<e.results.length; i++){
+        if (e.results[i].isFinal){ fin += e.results[i][0].transcript; Dom.txHist.textContent = fin; }
+        else itm += e.results[i][0].transcript;
+      }
+      Dom.txMain.textContent = itm || (fin ? '…' : '聆聽中…');
+    };
+    S.speech.onerror = ()=> Speech.toggle(false);
+    S.speech.onend = ()=>{
+      if ($('btn-mic').classList.contains('active')){
+        try{ S.speech.start(); }catch(e){}
+      }
+    };
+  },
+  toggle(force){
+    if (!S.speech) return;
+    const btn = $('btn-mic');
+    const on  = force === true || (force !== false && !btn.classList.contains('active'));
+    if (on){ try{ S.speech.lang = P.micLang; S.speech.start(); }catch(e){} btn.classList.add('active'); }
+    else   { try{ S.speech.stop(); }catch(e){} btn.classList.remove('active'); }
+  }
+};
+
+/* ── Recorder ─────────────────────────────── */
+const Recorder = {
+  toggle(){
+    if (S.recording){ this.stop(); }
+    else { this.start(); }
+  },
+  start(){
+    try{
+      const stream = Dom.canvas.captureStream(30);
+      const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
+      S.mediaRec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 6_000_000 });
+      S.chunks = [];
+      S.mediaRec.ondataavailable = e=>{ if(e.data.size) S.chunks.push(e.data); };
+      S.mediaRec.onstop = ()=>{
+        const blob = new Blob(S.chunks, { type:'video/webm' });
+        const url  = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `euler-omega-${Date.now()}.webm`;
+        a.click(); setTimeout(()=>URL.revokeObjectURL(url), 3000);
+      };
+      S.mediaRec.start();
+      S.recording = true;
+      $('btn-rec').classList.add('active');
+      Utils.toast('錄影開始');
+    }catch(e){ Utils.toast('無法開始錄影'); console.error(e); }
+  },
+  stop(){
+    if (S.mediaRec && S.mediaRec.state !== 'inactive') S.mediaRec.stop();
+    S.recording = false;
+    $('btn-rec').classList.remove('active');
+    Utils.toast('錄影已存檔');
+  },
+  snapshot(){
+    Dom.canvas.toBlob(b=>{
+      const url = URL.createObjectURL(b);
+      const a = document.createElement('a');
+      a.href = url; a.download = `euler-omega-${Date.now()}.png`;
+      a.click(); setTimeout(()=>URL.revokeObjectURL(url), 3000);
+      Utils.toast('已截圖');
+    }, 'image/png');
+  }
+};
+
+/* ── Rendering pipeline ───────────────────── */
+function collectDelaunay(results, w, h){
+  S.delaunayPts = [];
+  const d = P.density/100;
+  const ok = (x,y) => Number.isFinite(x) && Number.isFinite(y);
+  const push = p => S.delaunayPts.push({ x:p.x*w, y:p.y*h, z:p.z||0 });
+
+  if (results.poseLandmarks){
+    for (const i of [11,12,13,14,15,16,23,24,25,26,27,28]){
+      const p = results.poseLandmarks[i];
+      if (p && Math.random()<d && p.visibility>.5 && ok(p.x,p.y)) push(p);
+    }
+  }
+  if (results.faceLandmarks){
+    const step = Math.max(5, Math.floor(10/d));
+    for (let i=0; i<results.faceLandmarks.length; i+=step){
+      const p = results.faceLandmarks[i]; if (p && ok(p.x,p.y)) push(p);
+    }
+  }
+  const hand = lm=>{ if(!lm) return; for(const p of lm) if(p&&Math.random()<d*1.5&&ok(p.x,p.y)) push(p); };
+  hand(results.leftHandLandmarks); hand(results.rightHandLandmarks);
+
+  if (S.delaunayPts.length>=3){
+    try{ S.delaunayTri = new Delaunator(S.delaunayPts.map(p=>[p.x,p.y])).triangles; }
+    catch(e){ S.delaunayTri = []; }
+  }
+}
+
+function drawDelaunay(ctx, w, h){
+  if (!S.delaunayTri.length) return;
+  const hue = P.hue, tri = S.delaunayTri, pts = S.delaunayPts;
+  const maxA = (w*h)*.005;
+  for (let i=0; i<tri.length; i+=3){
+    const p1=pts[tri[i]], p2=pts[tri[i+1]], p3=pts[tri[i+2]]; if(!p1||!p2||!p3) continue;
+    const area = Math.abs((p1.x*(p2.y-p3.y)+p2.x*(p3.y-p1.y)+p3.x*(p1.y-p2.y))/2);
+    if (area<maxA && area>0){
+      const da = Math.max(.1, .6 - Math.abs((p1.z+p2.z+p3.z)/3)*2);
+      ctx.strokeStyle = `hsla(${hue},100%,70%,${da})`;
+      ctx.fillStyle   = `hsla(${hue},80%,20%,${da*.3})`;
+      ctx.lineWidth = .8;
+      ctx.beginPath();
+      ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.lineTo(p3.x,p3.y); ctx.closePath();
+      ctx.fill(); ctx.stroke();
+    }
+  }
+  ctx.fillStyle = `hsla(${hue},100%,90%,.6)`;
+  for (const p of pts){ ctx.beginPath(); ctx.arc(p.x,p.y,1.4,0,Math.PI*2); ctx.fill(); }
+}
+
+function drawSkeleton(ctx, results, w, h){
+  const hue = P.hue, br = P.meshBright;
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  if (P.faceMeshOn && results.faceLandmarks && window.FACEMESH_TESSELATION){
+    ctx.strokeStyle=`hsla(${hue},100%,${br}%,.55)`; ctx.lineWidth=.6;
+    ctx.beginPath();
+    for (const c of FACEMESH_TESSELATION){
+      const a = results.faceLandmarks[c[0]], b = results.faceLandmarks[c[1]];
+      if (a && b){ ctx.moveTo(a.x*w,a.y*h); ctx.lineTo(b.x*w,b.y*h); }
+    }
+    ctx.stroke();
+  }
+  if (P.poseMeshOn && results.poseLandmarks && window.POSE_CONNECTIONS){
+    ctx.strokeStyle = `hsla(${hue},100%,${br+10}%,.85)`; ctx.lineWidth=2.2;
+    ctx.beginPath();
+    for (const c of POSE_CONNECTIONS){
+      const a = results.poseLandmarks[c[0]], b = results.poseLandmarks[c[1]];
+      if (a && b && (a.visibility||0)>.4 && (b.visibility||0)>.4){
+        ctx.moveTo(a.x*w,a.y*h); ctx.lineTo(b.x*w,b.y*h);
+      }
+    }
+    ctx.stroke();
+    ctx.fillStyle='#fff';
+    for (const p of results.poseLandmarks){
+      if (p && (p.visibility||0)>.4){ ctx.beginPath(); ctx.arc(p.x*w,p.y*h,2.5,0,Math.PI*2); ctx.fill(); }
+    }
+  }
+  if (P.handMeshOn && window.HAND_CONNECTIONS){
+    const dh = lm=>{
+      if (!lm) return;
+      ctx.strokeStyle=`hsla(${hue},100%,${br+20}%,.8)`; ctx.lineWidth=2; ctx.beginPath();
+      for (const c of HAND_CONNECTIONS){
+        const a=lm[c[0]], b=lm[c[1]]; if(a&&b){ ctx.moveTo(a.x*w,a.y*h); ctx.lineTo(b.x*w,b.y*h); }
+      }
+      ctx.stroke();
+      ctx.fillStyle='#fff';
+      for (const p of lm){ if(p){ ctx.beginPath(); ctx.arc(p.x*w,p.y*h,2,0,Math.PI*2); ctx.fill(); } }
+    };
+    dh(results.leftHandLandmarks); dh(results.rightHandLandmarks);
+  }
+}
+
+function _renderCSS(results, w, h){
+  const ctx = Dom.ctx;
+  if (results.faceLandmarks) S.headYaw = Face.yaw(results.faceLandmarks);
+
+  ctx.clearRect(0,0,w,h);
+
+  ctx.save();
+  if (P.bgType === 'CAM'){
+    if (P.mirror){ ctx.translate(w,0); ctx.scale(-1,1); }
+    ctx.drawImage(Dom.webcam, 0,0, w,h);
+  } else if (P.bgType === 'VIDEO'){
+    Utils.drawContain(ctx, Dom.bgVid, w, h);
+  } else if (P.bgType === 'IMAGE'){
+    Utils.drawContain(ctx, Dom.bgImg, w, h);
+  }
+  ctx.restore();
+
+  if (P.bgDim > 0){ ctx.fillStyle = `rgba(0,0,0,${P.bgDim/100})`; ctx.fillRect(0,0,w,h); }
+
+  ctx.save();
+  if (P.mirror){ ctx.translate(w,0); ctx.scale(-1,1); }
+
+  const hasFace = P.faceMode && S.faceReady && results.faceLandmarks;
+  const hasVid  = P.vwTopoLock && VidWin.hasVideo() && P.vwOn;
+
+  if (hasFace && hasVid && P.faceLockVid){
+    const cc = Dom.compCtx; cc.clearRect(0,0,w,h);
+    const v = VidWin.vid, vw=v.videoWidth, vh=v.videoHeight;
+    if (vw && vh){
+      const r = Math.max(w/vw, h/vh);
+      cc.save(); cc.globalAlpha = P.vwOpacity;
+      cc.drawImage(v, (w-vw*r)/2, (h-vh*r)/2, vw*r, vh*r); cc.restore();
+    }
+    const lm = results.faceLandmarks, fc = Face.center(lm);
+    Face.render(ctx, lm, w, h, S.headYaw, P.faceScale, fc.x, fc.y);
+    cc.save(); cc.globalCompositeOperation='source-atop'; cc.globalAlpha = P.faceOpacity;
+    cc.drawImage(faceCanvas, 0,0, w,h); cc.restore();
+    ctx.save(); ctx.globalCompositeOperation = P.vwBlend;
+    ctx.drawImage(compCanvas, 0,0, w,h); ctx.restore();
+  } else {
+    VidWin.drawLayer(ctx, w, h);
+    if (hasFace){
+      const lm = results.faceLandmarks, fc = Face.center(lm);
+      Face.render(ctx, lm, w, h, S.headYaw, P.faceScale, fc.x, fc.y);
+    }
+  }
+
+  if (P.delaunayOn){ collectDelaunay(results, w, h); if (S.delaunayPts.length>=3) drawDelaunay(ctx, w, h); }
+  drawSkeleton(ctx, results, w, h);
+  ctx.restore();
+
+  Fx.drawVignette(ctx, w, h);
+
+  // FPS
+  S.fps.n++;
+  const now = performance.now();
+  if (now - S.fps.last >= 500){
+    S.fps.val = Math.round(S.fps.n / ((now-S.fps.last)/1000));
+    S.fps.n = 0; S.fps.last = now;
+    Dom.fps.textContent = S.fps.val + ' FPS';
+  }
+  Dom.stAi.classList.remove('warn','err');
+}
+
+/* ── UI wiring ────────────────────────────── */
+const UI = {
+  init(){
+    // Tabs
+    $$('.tab').forEach(t=>{
+      t.onclick = ()=>{
+        $$('.tab').forEach(x=>x.classList.remove('active'));
+        $$('.tab-body').forEach(x=>x.classList.remove('active'));
+        t.classList.add('active');
+        document.querySelector(`.tab-body[data-body="${t.dataset.tab}"]`).classList.add('active');
+      };
+    });
+
+    // Toggle panel
+    Dom.toggle.onclick = ()=>{
+      P.hudOn = !P.hudOn;
+      Dom.panel.classList.toggle('hidden', !P.hudOn);
+      Dom.toggle.classList.toggle('collapsed', !P.hudOn);
+    };
+
+    // Sliders
+    const bind = (id, key, unit='', fmt=v=>v)=>{
+      const el = $('s-'+id), vEl = $('v-'+id); if(!el||!vEl) return;
+      const upd = ()=>{
+        const v = +el.value;
+        P[key] = (key==='faceScale' || key==='faceOpacity' || key==='vwOpacity') ? v/100 : v;
+        vEl.textContent = fmt(v) + unit;
+        Fx.applyFilter();
+      };
+      el.oninput = upd;
+      el.value = (key==='faceScale' || key==='faceOpacity' || key==='vwOpacity') ? P[key]*100 : P[key];
+      vEl.textContent = fmt(el.value) + unit;
+    };
+    bind('dim',    'bgDim',      '%');
+    bind('hue',    'hue',        '°');
+    bind('bright', 'bright',     '%');
+    bind('sat',    'sat',        '%');
+    bind('con',    'con',        '%');
+    bind('vig',    'vig',        '%');
+    bind('density','density',    '%');
+    bind('mbright','meshBright', '%');
+    bind('fscale', 'faceScale',  '%');
+    bind('fop',    'faceOpacity','%');
+
+    // Capture
+    $('btn-flip').onclick   = ()=>Cam.flip();
+    $('btn-mirror').onclick = ()=>{ P.mirror = !P.mirror; $('btn-mirror').classList.toggle('active', P.mirror); };
+    $('btn-bg').onclick     = ()=>Dom.fileBg.click();
+    $('btn-bg-clear').onclick = ()=>{ P.bgType='CAM'; Dom.bgVid.pause?.(); };
+    Dom.fileBg.onchange = e=>{
+      const f = e.target.files[0]; if(!f) return;
+      const url = URL.createObjectURL(f);
+      if (f.type.startsWith('video')){ P.bgType='VIDEO'; Dom.bgVid.src = url; Dom.bgVid.play(); }
+      else { P.bgType='IMAGE'; Dom.bgImg.src = url; }
+    };
+
+    // Mesh toggles
+    const mtg = (id, key)=>{
+      $(id).onclick = ()=>{ P[key] = !P[key]; $(id).classList.toggle('active', P[key]); };
+    };
+    mtg('btn-face-mesh','faceMeshOn');
+    mtg('btn-hand-mesh','handMeshOn');
+    mtg('btn-pose-mesh','poseMeshOn');
+    mtg('btn-delaunay', 'delaunayOn');
+
+    // Face
+    $('btn-face-import').onclick = ()=>Dom.fileFace.click();
+    Dom.fileFace.onchange = e=>{ if(e.target.files[0]) Face.handleImport(e.target.files[0]); };
+    $('btn-face-mode').onclick = ()=>{
+      if (!S.faceReady){ Utils.toast('請先匯入臉部素材'); return; }
+      P.faceMode = !P.faceMode; UI.syncButtons();
+    };
+    $('btn-face-lock-vid').onclick = ()=>{
+      P.faceLockVid = !P.faceLockVid; UI.syncButtons();
+    };
+    $('btn-face-clear').onclick = ()=>Face.clear();
+    $('btn-side-opt').onclick   = ()=>{ P.sideOpt = !P.sideOpt; $('btn-side-opt').classList.toggle('active', P.sideOpt); };
+
+    // Speech
+    $('btn-mic').onclick = ()=>Speech.toggle();
+    $('mic-lang').onchange = e=>{ P.micLang = e.target.value; if($('btn-mic').classList.contains('active')){ Speech.toggle(false); Speech.toggle(true); } };
+
+    // IO
+    $('btn-shot').onclick = ()=>Recorder.snapshot();
+    $('btn-rec').onclick  = ()=>Recorder.toggle();
+    $('btn-vw').onclick   = ()=>VidWin.toggle();
+
+    $('btn-preset-save').onclick  = ()=>{ Utils.saveP(); Utils.toast('預設已儲存'); };
+    $('btn-preset-load').onclick  = ()=>{ if(Utils.loadP()){ UI.reflectAll(); Utils.toast('預設已載入'); } else Utils.toast('無儲存預設'); };
+    $('btn-preset-reset').onclick = ()=>{ localStorage.removeItem('eulerΩ.preset'); Utils.toast('已清除預設'); };
+
+    // Drag & drop
+    ['dragenter','dragover'].forEach(ev=>window.addEventListener(ev, e=>{ e.preventDefault(); Dom.stage.classList.add('dropover'); }));
+    ['dragleave','drop'].forEach(ev=>window.addEventListener(ev, e=>{ e.preventDefault(); Dom.stage.classList.remove('dropover'); }));
+    window.addEventListener('drop', e=>{
+      const f = e.dataTransfer.files[0]; if(!f) return;
+      if (e.shiftKey) Face.handleImport(f);
+      else {
+        const url = URL.createObjectURL(f);
+        if (f.type.startsWith('video')){ P.bgType='VIDEO'; Dom.bgVid.src=url; Dom.bgVid.play(); }
+        else { P.bgType='IMAGE'; Dom.bgImg.src=url; }
+      }
+    });
+
+    // Keyboard
+    window.addEventListener('keydown', e=>{
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+      const k = e.key.toLowerCase();
+      if (k==='h'){ Dom.toggle.click(); }
+      else if (k==='s'){ Recorder.snapshot(); }
+      else if (k==='r'){ Recorder.toggle(); }
+      else if (k==='f'){ Cam.flip(); }
+      else if (k==='m'){ Speech.toggle(); }
+      else if (k==='v'){ VidWin.toggle(); }
+      else if (k==='escape'){ if (P.hudOn) Dom.toggle.click(); }
+      else if (['1','2','3','4','5'].includes(k)){
+        const tabs = $$('.tab'); const i = +k - 1; if (tabs[i]) tabs[i].click();
+      }
+    });
+
+    UI.reflectAll();
+  },
+
+  syncButtons(){
+    $('btn-face-mode').classList.toggle('active', P.faceMode);
+    $('btn-face-lock-vid').classList.toggle('active', P.faceLockVid);
+    Dom.faceBadge.classList.toggle('on', P.faceMode);
+    Dom.faceBadge.innerHTML = P.faceLockVid ? '⬡ 臉部 × 影片鎖定' : '⬡ 臉部鎖定';
+  },
+
+  reflectAll(){
+    Fx.applyFilter();
+    $('btn-mirror').classList.toggle('active', P.mirror);
+    $('btn-face-mesh').classList.toggle('active', P.faceMeshOn);
+    $('btn-hand-mesh').classList.toggle('active', P.handMeshOn);
+    $('btn-pose-mesh').classList.toggle('active', P.poseMeshOn);
+    $('btn-delaunay').classList.toggle('active', P.delaunayOn);
+    $('btn-side-opt').classList.toggle('active', P.sideOpt);
+    $('vw-lock').classList.toggle('active', P.vwTopoLock);
+    $('vw-op').value = P.vwOpacity*100; $('vw-op-v').textContent = Math.round(P.vwOpacity*100)+'%';
+    $('vw-blend-sel').value = P.vwBlend;
+    $('mic-lang').value = P.micLang;
+    UI.syncButtons();
+  }
+};
+
+/* ── Resize / init ────────────────────────── */
+function resize(){
+  const W = window.innerWidth, H = window.innerHeight;
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  for (const c of [Dom.canvas, Dom.eyeCanvas, faceCanvas, compCanvas]){
+    c.width  = W * dpr;
+    c.height = H * dpr;
+  }
+  Dom.ctx.setTransform(dpr,0,0,dpr,0,0);
+  Dom.eyeCtx.setTransform(dpr,0,0,dpr,0,0);
+  Dom.faceCtx.setTransform(dpr,0,0,dpr,0,0);
+  Dom.compCtx.setTransform(dpr,0,0,dpr,0,0);
+}
+window.addEventListener('resize', resize);
+
+async function init(){
+  resize();
+  Utils.loadP();
+
+  window.__eulerΩResults = r => _renderCSS(r, window.innerWidth, window.innerHeight);
+
+  Dom.loader.style.display = 'none';
+
+  S.holistic = new Holistic({ locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${f}` });
+  S.holistic.setOptions({
+    modelComplexity:1, smoothLandmarks:true, refineFaceLandmarks:true,
+    minDetectionConfidence:.5, minTrackingConfidence:.5,
+  });
+  S.holistic.onResults(window.__eulerΩResults);
+
+  await Cam.start();
+  VidWin.init();
+  Speech.init();
+  UI.init();
+
+  loop();
+}
+
+let lastSend = 0;
+async function loop(){
+  const now = performance.now();
+  if (Dom.webcam.videoWidth && now - lastSend > 33){
+    lastSend = now;
+    try{ await S.holistic.send({ image: Dom.webcam }); }catch(e){}
+  }
+  requestAnimationFrame(loop);
+}
+
+window.addEventListener('load', init);
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js', { scope: './', updateViaCache: 'none' })
+      .catch(error => console.error('Service Worker 註冊失敗：', error));
+  });
+}
 </script>
 </body>
 </html>
